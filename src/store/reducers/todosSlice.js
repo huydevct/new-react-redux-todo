@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const todoSlice = createSlice({
   name: "todos",
@@ -21,12 +21,43 @@ const todoSlice = createSlice({
       },
     ],
   },
+  reducers: {
+    addTodo: {
+      reducer(state, action) {
+        state.allTodos.unshift(action.payload);
+      },
+      prepare(title) {
+        return {
+          payload: {
+            id: nanoid(),
+            title,
+            completed: false,
+          },
+        };
+      },
+    },
+    markCompleted(state, action) {
+      const todoId = action.payload;
+      state.allTodos = state.allTodos.map((todo) => {
+        if (todo.id === todoId) {
+          todo.completed = !todo.completed;
+        }
+        return todo;
+      });
+    },
+    deleteTodo(state, action){
+      const todoId = action.payload;
+      state.allTodos = state.allTodos.filter(todo => todo.id !== todoId);
+    }
+  },
 });
 
 const todosReducer = todoSlice.reducer;
 
-
 //Selector
-export const todosSelector = state => state.todosReducer.allTodos
+export const todosSelector = (state) => state.todosReducer.allTodos;
 
-export default todosReducer
+//Action export
+export const { addTodo, markCompleted, deleteTodo } = todoSlice.actions;
+
+export default todosReducer;
